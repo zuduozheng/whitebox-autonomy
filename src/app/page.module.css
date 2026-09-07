@@ -1,0 +1,154 @@
+/*
+ * Homepage: a left-aligned, top-anchored research-page layout. The page shell
+ * matches the site's shared frame (--max-content-width, same as the header
+ * and footer). Unlike a long-form prose page, every block here is short (1-3
+ * sentences), so the page uses that full frame width throughout rather than
+ * imposing a separate narrower reading measure — the one exception is
+ * .supportText, whose own institutional-acknowledgement text is deliberately
+ * kept narrower and quieter, subordinate to the page's primary content.
+ * Hierarchy is carried by size, weight and spacing only — no boxes, colour
+ * blocks or images.
+ */
+
+.home {
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-3) var(--space-6);
+}
+
+.home p {
+  margin: 0;
+}
+
+/* --- identity --- */
+
+.identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Square source artwork (1024x1024), displayed small and unmodified so it
+   reads as a mark alongside the wordmark rather than a dominant image. */
+.logo {
+  display: block;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  margin: var(--space-2) 0 0;
+  font-size: clamp(1.0625rem, 2.5vw, 1.25rem);
+  font-weight: 600;
+  color: var(--colour-text);
+}
+
+/*
+ * --- introductory statements (primary reading weight) ---
+ * Short (1-3 sentence) statements, not long-form prose, so they use the
+ * page's full frame width rather than a separate narrower reading measure —
+ * unlike, e.g., Methodology's multi-paragraph explanatory sections.
+ */
+
+.intro,
+.about {
+  margin: var(--space-4) 0 0;
+  font-size: 1.0625rem;
+}
+
+.intro p + p,
+.about p + p {
+  margin-top: var(--space-3);
+}
+
+/* --- entry point: restrained emphasis, no button --- */
+
+.enter {
+  margin: var(--space-5) 0 0;
+}
+
+.primaryLink {
+  font-size: 1.0625rem;
+}
+
+.primaryLink + .primaryLink {
+  margin-top: var(--space-2);
+}
+
+.primaryLink a {
+  font-weight: 600;
+}
+
+.primaryLink a:focus-visible {
+  outline: 2px solid var(--colour-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.secondaryLinks {
+  margin: var(--space-2) 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  font-size: 0.9375rem;
+}
+
+/* --- current status: plain, quiet, not a warning box --- */
+
+.status {
+  /* A larger gap than the page's other block breaks (var(--space-5)), so the
+     status reads as its own informational block rather than a continuation of
+     the secondary links above it. Short status text, so no narrower reading
+     measure — same reasoning as .intro/.about above. */
+  margin: var(--space-6) 0 0;
+  font-size: 0.9375rem;
+  color: var(--colour-text-muted);
+}
+
+/*
+ * Institutional support: visually quiet and proportionate. A separate
+ * bottom-of-page section so a row of official logos can later be added INSIDE
+ * it, after the acknowledgement text, without restructuring the homepage.
+ */
+
+.support {
+  margin: var(--space-5) 0 0;
+  padding: var(--space-4) 0 0;
+  border-top: 1px solid var(--colour-border);
+}
+
+.supportHeading {
+  margin: 0 0 var(--space-2);
+  font-size: 0.8125rem;
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--colour-text-muted);
+}
+
+/* Supplied M2CAT logo (intrinsic 824x654). Rendered small and left-aligned so
+   it stays subordinate to the White Box Autonomy identity at the top of the
+   page; height:auto preserves the original aspect ratio, max-width:100% keeps
+   it within the column on narrow screens. */
+.supportLogo {
+  display: block;
+  width: 130px;
+  max-width: 100%;
+  height: auto;
+  margin: var(--space-3) 0 var(--space-4);
+}
+
+.supportText {
+  margin: 0;
+  max-width: 40rem;
+  font-size: 0.875rem;
+  color: var(--colour-text-muted);
+}

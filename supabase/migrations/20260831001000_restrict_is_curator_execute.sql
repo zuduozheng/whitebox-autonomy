@@ -1,0 +1,23 @@
+-- Least-privilege hardening for public.is_curator() — follow-up to Migration 1.
+--
+-- Migration 1 (20260831000000_curator_identity.sql) ran
+--   revoke execute on function public.is_curator() from public;
+--   grant  execute on function public.is_curator() to authenticated;
+-- which removed the implicit PUBLIC execute grant. However, this project runs a
+-- Supabase platform `ddl_command_end` event trigger that, on CREATE FUNCTION,
+-- also granted EXECUTE *directly* to anon, authenticated and service_role.
+-- Post-apply verification confirmed anon still held EXECUTE on is_curator().
+--
+-- `anon` never needs this authorization helper: it is used only by curator RLS
+-- policies that apply to signed-in users. This migration removes that direct
+-- grant. It is forward-only and does not alter Migration 1.
+--
+-- Scope guardrails:
+--   * only anon is affected;
+--   * authenticated keeps EXECUTE (needed by later curator RLS policies);
+--   * service_role keeps EXECUTE (bypasses RLS anyway; left untouched here);
+--   * the function body, volatility, security context and search_path are
+--     unchanged;
+--   * no other object is touched.
+
+revoke execute on function public.is_curator() from anon;

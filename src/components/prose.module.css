@@ -1,0 +1,51 @@
+/*
+ * Shared styling for text-first pages (About, Methodology, and later content
+ * pages). Each page opts in by applying `.page` to its own <main>, so the
+ * reading width is a page-level choice, not something imposed by the layout.
+ *
+ * The page shell matches the site's shared frame (--max-content-width, same
+ * as the header and footer); the lede and body text below keep their own
+ * ~44rem reading measure, so widening the frame doesn't stretch running prose
+ * into uncomfortably long lines. Headings are left uncapped — short text at
+ * any width reads fine, and it lets a page choose a wider element (e.g. a
+ * table) without a heading looking narrower than its own section.
+ */
+
+.page {
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-3) var(--space-6);
+}
+
+.page h1 {
+  margin: 0 0 var(--space-2);
+  font-size: clamp(1.875rem, 5vw, 2.5rem);
+  letter-spacing: -0.02em;
+}
+
+.lede {
+  max-width: 44rem;
+  margin: 0 0 var(--space-5);
+  color: var(--colour-text-muted);
+  font-size: 1.0625rem;
+}
+
+.page h2 {
+  margin: var(--space-5) 0 var(--space-2);
+  font-size: 1.25rem;
+}
+
+.page p {
+  max-width: 44rem;
+  margin: var(--space-3) 0;
+}
+
+.page ul {
+  max-width: 44rem;
+  margin: var(--space-3) 0;
+  padding-left: var(--space-4);
+}
+
+.page li {
+  margin: var(--space-2) 0;
+}

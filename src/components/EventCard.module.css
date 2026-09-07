@@ -1,0 +1,107 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--colour-border);
+  border-left: 4px solid var(--valence-colour, var(--colour-border));
+  border-radius: 0.5rem;
+  background: var(--colour-bg);
+}
+
+/*
+ * Outcome / valence cue. The wording in `.outcome` and its fixed position at the
+ * top of the card carry the meaning; the dot and the left edge are a secondary,
+ * supplementary cue and are never the only signal. `--valence-colour` is scoped
+ * to the card, not a global token. Values chosen for >= ~6:1 contrast against
+ * the card background in each mode.
+ */
+.card[data-valence="failure-or-challenging"] {
+  --valence-colour: #9a3412;
+}
+
+.card[data-valence="successful-handling"] {
+  --valence-colour: #166534;
+}
+
+.card[data-valence="neutral-or-unclear"] {
+  --valence-colour: #475569;
+}
+
+@media (prefers-color-scheme: dark) {
+  .card[data-valence="failure-or-challenging"] {
+    --valence-colour: #f0a675;
+  }
+
+  .card[data-valence="successful-handling"] {
+    --valence-colour: #7fc0a0;
+  }
+
+  .card[data-valence="neutral-or-unclear"] {
+    --valence-colour: #9aa4b2;
+  }
+}
+
+.outcome {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: var(--colour-text);
+}
+
+.outcome::before {
+  content: "";
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--valence-colour, var(--colour-text-muted));
+}
+
+.title {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.title a {
+  color: var(--colour-accent);
+  text-decoration: none;
+}
+
+.title a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.title a:focus-visible {
+  outline: 2px solid var(--colour-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+  text-decoration: underline;
+}
+
+.meta {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--colour-text-muted);
+}
+
+.facets {
+  margin: var(--space-1) 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--colour-text-muted);
+}
+
+.facets span:not(:first-child)::before {
+  content: " · ";
+  color: var(--colour-border);
+}
+
+.facetPrimary {
+  color: var(--colour-text);
+}

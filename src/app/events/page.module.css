@@ -1,0 +1,100 @@
+.page {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-3) var(--space-6);
+}
+
+.intro h1 {
+  margin: 0 0 var(--space-2);
+  font-size: clamp(1.875rem, 5vw, 2.5rem);
+  letter-spacing: -0.02em;
+}
+
+.caveat {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-3);
+  border-left: 3px solid var(--colour-border);
+  background: var(--colour-surface);
+  color: var(--colour-text-muted);
+  font-size: 0.9375rem;
+}
+
+.summary {
+  margin: var(--space-4) 0;
+  font-size: 0.9375rem;
+}
+
+.summary p {
+  margin: 0;
+}
+
+.summary .filterCount {
+  margin: var(--space-2) 0 0;
+  color: var(--colour-text-muted);
+  font-size: 0.875rem;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+  padding: var(--space-3);
+  border: 1px solid var(--colour-border);
+  border-radius: 0.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.field label {
+  font-size: 0.8125rem;
+  color: var(--colour-text-muted);
+}
+
+.field select {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--colour-border);
+  border-radius: 0.375rem;
+  background: var(--colour-bg);
+  color: var(--colour-text);
+  font: inherit;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.actions button {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--colour-accent);
+  border-radius: 0.375rem;
+  background: var(--colour-accent);
+  color: #ffffff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.clear {
+  font-size: 0.875rem;
+}
+
+.empty {
+  margin: var(--space-5) 0;
+  color: var(--colour-text-muted);
+}
+
+.list {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

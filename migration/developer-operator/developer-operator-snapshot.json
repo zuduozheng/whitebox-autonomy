@@ -1,0 +1,298 @@
+[
+  {
+    "developer_or_operator": "ADMT - VWGoA",
+    "count": 2
+  },
+  {
+    "developer_or_operator": "ADMT- VWGoA",
+    "count": 6
+  },
+  {
+    "developer_or_operator": "Apollo Autonomous Driving USA",
+    "count": 3
+  },
+  {
+    "developer_or_operator": "Apple Inc.",
+    "count": 3
+  },
+  {
+    "developer_or_operator": "Argo AI",
+    "count": 20
+  },
+  {
+    "developer_or_operator": "Aurora Operations, Inc",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Aurora Operations, Inc.",
+    "count": 22
+  },
+  {
+    "developer_or_operator": "AutoX Technologies, Inc.",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Avride",
+    "count": 5
+  },
+  {
+    "developer_or_operator": "Avride Inc",
+    "count": 21
+  },
+  {
+    "developer_or_operator": "Avride INC",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Avride Inc.",
+    "count": 45
+  },
+  {
+    "developer_or_operator": "Avride INC.",
+    "count": 3
+  },
+  {
+    "developer_or_operator": "Beep",
+    "count": 3
+  },
+  {
+    "developer_or_operator": "BEEP Inc",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Beep Inc.",
+    "count": 2
+  },
+  {
+    "developer_or_operator": "Beep, Inc",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Beep, Inc.",
+    "count": 6
+  },
+  {
+    "developer_or_operator": "Chrysler (FCA US, LLC)",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Colorado School of Mines",
+    "count": 2
+  },
+  {
+    "developer_or_operator": "Cruise",
+    "count": 6
+  },
+  {
+    "developer_or_operator": "CRUISE",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Cruise LLC",
+    "count": 149
+  },
+  {
+    "developer_or_operator": "First Transit, Inc.",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Gatik AI Inc.",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Ghost Autonomy Inc.",
+    "count": 2
+  },
+  {
+    "developer_or_operator": "Hyundai Motor America",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Internal employee",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Kia America, Inc.",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Kodiak Robotics, Inc",
+    "count": 2
+  },
+  {
+    "developer_or_operator": "Kodiak Robotics, Inc.",
+    "count": 4
+  },
+  {
+    "developer_or_operator": "Lucid USA, Inc.",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "May Mobility",
+    "count": 28
+  },
+  {
+    "developer_or_operator": "May Mobility Inc",
+    "count": 6
+  },
+  {
+    "developer_or_operator": "May Mobility Inc.",
+    "count": 10
+  },
+  {
+    "developer_or_operator": "Mercedes-Benz RD NA",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Mercedes-Benz Research and Development NA",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Mercedes-Benz Research and Development North America",
+    "count": 2
+  },
+  {
+    "developer_or_operator": "Motional",
+    "count": 24
+  },
+  {
+    "developer_or_operator": "Navistar, Inc.",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "NAVYA Inc.",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Nuro",
+    "count": 6
+  },
+  {
+    "developer_or_operator": "Nuro Inc",
+    "count": 3
+  },
+  {
+    "developer_or_operator": "Nuro Inc.",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Nuro, Inc.",
+    "count": 3
+  },
+  {
+    "developer_or_operator": "Ohmio",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "PLUSAI, INC",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "PlusAI, Inc.",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Polestar",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Pony.ai",
+    "count": 5
+  },
+  {
+    "developer_or_operator": "Pony.ai, Inc",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Pony.ai, Inc.",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Robotic Research",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Stack AV Co.",
+    "count": 2
+  },
+  {
+    "developer_or_operator": "Tesla",
+    "count": 77
+  },
+  {
+    "developer_or_operator": "Tesla Inc",
+    "count": 24
+  },
+  {
+    "developer_or_operator": "Torc Robotics, Inc",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "TORC ROBOTICS, INC",
+    "count": 2
+  },
+  {
+    "developer_or_operator": "TuSimple",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "VinFast Auto, LLC",
+    "count": 2
+  },
+  {
+    "developer_or_operator": "VisLab, SRL (subsidiary of Ambarella, Inc.)",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "VWGoA- ADMT",
+    "count": 2
+  },
+  {
+    "developer_or_operator": "Waymo",
+    "count": 8
+  },
+  {
+    "developer_or_operator": "Waymo LLc",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Waymo LLC",
+    "count": 2213
+  },
+  {
+    "developer_or_operator": "WAYMO LLC",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Waymo LLlC",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "WeRide",
+    "count": 10
+  },
+  {
+    "developer_or_operator": "Weride Corp",
+    "count": 2
+  },
+  {
+    "developer_or_operator": "WeRide Corp",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Zoox",
+    "count": 142
+  },
+  {
+    "developer_or_operator": "Zoox and Waymo",
+    "count": 1
+  },
+  {
+    "developer_or_operator": "Zoox Inc.",
+    "count": 11
+  },
+  {
+    "developer_or_operator": "Zoox, Inc",
+    "count": 2
+  }
+]

@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    // Lets a .ts file import another local .ts file with an explicit ".ts"
+    // extension in the specifier (e.g. "./developer-operator.ts") — needed
+    // because this project's *.test.mjs files run under Node's native
+    // TypeScript support, whose ESM resolver (unlike the bundler/webpack
+    // resolution this project otherwise uses) requires an explicit
+    // extension for a relative specifier that names a real value (not a
+    // type-only import, which is erased before resolution matters). Only
+    // valid alongside `noEmit`/`emitDeclarationOnly` (both would otherwise
+    // try to emit a literal ".ts" import that doesn't exist at runtime) —
+    // satisfied here by the `noEmit: true` above. Does not relax any other
+    // check; existing extensionless imports are unaffected.
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts"
+  ],
+  "exclude": ["node_modules"]
+}

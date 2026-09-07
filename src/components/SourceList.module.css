@@ -1,0 +1,38 @@
+.list {
+  margin: var(--space-3) 0 0;
+  padding-left: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.item {
+  padding-left: var(--space-1);
+}
+
+.head {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--colour-text-muted);
+}
+
+.type {
+  color: var(--colour-text);
+  font-weight: 600;
+}
+
+.link {
+  margin: var(--space-1) 0 0;
+  word-break: break-word;
+}
+
+.dates {
+  margin: var(--space-1) 0 0;
+  font-size: 0.8125rem;
+  color: var(--colour-text-muted);
+}
+
+.note {
+  margin: var(--space-1) 0 0;
+  font-size: 0.9375rem;
+}

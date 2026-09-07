@@ -1,0 +1,19 @@
+# Normalise line endings: store every text file as LF in the repository,
+# regardless of each contributor's local git configuration (this repo is
+# developed on Windows, where core.autocrlf is often enabled globally).
+* text=auto eol=lf
+
+# Lockfile: keep it in the diff, but mark it generated so review tools
+# can collapse it by default.
+package-lock.json linguist-generated=true
+
+# Binary assets: no line-ending conversion, no textual diff.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.woff  binary
+*.woff2 binary
+*.pdf  binary

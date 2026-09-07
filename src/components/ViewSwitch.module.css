@@ -1,0 +1,26 @@
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: var(--space-3) 0 0;
+  font-size: 0.9375rem;
+}
+
+.option {
+  padding: var(--space-1) var(--space-2);
+  border-radius: 0.375rem;
+}
+
+a.option {
+  color: var(--colour-text-muted);
+}
+
+.active {
+  font-weight: 650;
+  color: var(--colour-text);
+  background: var(--colour-surface);
+}
+
+.separator {
+  color: var(--colour-border);
+}

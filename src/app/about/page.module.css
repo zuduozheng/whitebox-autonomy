@@ -1,0 +1,14 @@
+/*
+ * Local override of prose.module.css's `.lede`. Every other paragraph on this
+ * page stays at that shared file's narrower reading measure — appropriate for
+ * its multi-section explanatory prose — but the page's one-sentence top
+ * introduction is short enough to use the full page frame instead, matching
+ * the homepage's own short introductory text. Duplicates `.lede`'s other
+ * properties rather than composing with it: CSS Modules give no reliable
+ * cross-file cascade order to override a single property alone.
+ */
+.lede {
+  margin: 0 0 var(--space-5);
+  color: var(--colour-text-muted);
+  font-size: 1.0625rem;
+}

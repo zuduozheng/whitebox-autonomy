@@ -1,0 +1,37 @@
+/*
+ * Local override of prose.module.css's `.lede`, same reasoning as
+ * about/page.module.css: this page's other paragraphs and its form keep the
+ * shared narrower reading/field measure, but the one-sentence top
+ * introduction is short enough to use the full page frame instead.
+ */
+.lede {
+  margin: 0 0 var(--space-5);
+  color: var(--colour-text-muted);
+  font-size: 1.0625rem;
+}
+
+.notice {
+  margin: var(--space-4) 0 var(--space-5);
+  padding: var(--space-3);
+  border-left: 3px solid var(--colour-border);
+  background: var(--colour-surface);
+  color: var(--colour-text-muted);
+  font-size: 0.9375rem;
+}
+
+.notice p {
+  margin: var(--space-2) 0;
+}
+
+.notice p:first-child {
+  margin-top: 0;
+}
+
+.notice p:last-child {
+  margin-bottom: 0;
+}
+
+.back {
+  margin-top: var(--space-5);
+  font-size: 0.9375rem;
+}

@@ -1,0 +1,56 @@
+.header {
+  border-bottom: 1px solid var(--colour-border);
+  background: var(--colour-bg);
+}
+
+/*
+ * The header constrains its own content. Page components below the header
+ * remain free to choose a narrower or a full-bleed layout.
+ */
+.inner {
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  padding: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--colour-text);
+  font-size: 1.0625rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+/* Square source artwork (1024x1024); compact and subtle beside the text,
+   not a repeat of the homepage's larger hero treatment. */
+.wordmarkLogo {
+  display: block;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.navLink {
+  color: var(--colour-text-muted);
+  font-size: 0.9375rem;
+  text-decoration: none;
+}
+
+.navLink:hover {
+  color: var(--colour-text);
+  text-decoration: underline;
+}

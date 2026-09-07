@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+message: >-
+  If you use White Box Autonomy — its event data, ontology, classifications,
+  methodology, or software — in academic or research work, please cite it
+  using the preferred citation below (also shown in README.md).
+preferred-citation:
+  type: generic
+  title: "White Box Autonomy: Global AV Event Observatory (Beta 1.1)"
+  authors:
+    - family-names: Zheng
+      given-names: Zuduo
+  year: 2026
+  publisher:
+    name: White Box Autonomy
+  url: https://whiteboxautonomy.org
+title: "White Box Autonomy: Global AV Event Observatory"
+type: software
+abstract: >-
+  White Box Autonomy runs the Global AV Event Observatory: a structured,
+  openly sourced catalogue of events involving automated-driving systems,
+  combining individually curated public evidence with source-derived
+  regulatory records, with transparent source provenance and explicit
+  verification status.
+authors:
+  - family-names: Zheng
+    given-names: Zuduo
+    email: zuduo.zheng@uq.edu.au
+    affiliation: >-
+      M2CAT Lab, The University of Queensland
+version: "1.1.0"
+date-released: "2026-09-07"
+url: https://whiteboxautonomy.org
+repository-code: https://github.com/zuduozheng/whitebox-autonomy
+# This software record's `license` is Apache-2.0 only: WBA is not
+# dual-licensing this repository under Apache-2.0 and CC-BY-4.0 together.
+# Apache-2.0 covers the software this CITATION.cff entry describes;
+# eligible WBA-authored documentation/research content is separately
+# licensed under CC BY 4.0, and third-party/source material and WBA/M2CAT
+# branding are excluded from both — see LICENSING.md for the full,
+# authoritative breakdown.
+license: Apache-2.0
