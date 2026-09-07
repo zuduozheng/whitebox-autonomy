@@ -94,8 +94,8 @@ export default function AboutPage() {
       </p>
       <p>
         The views expressed on this website are those of the authors and do not
-        necessarily reflect the views of the Australian Research Council or the
-        Australian Government.
+        necessarily reflect the views of The University of Queensland, the
+        Australian Research Council, or the Australian Government.
       </p>
 
       <h2>Contact and corrections</h2>
