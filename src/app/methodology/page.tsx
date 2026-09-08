@@ -207,6 +207,22 @@ export default function MethodologyPage() {
         incident-level interpretations or safety-related conclusions.
       </p>
 
+      <h2>Open methodology and source code</h2>
+      <p>
+        White Box Autonomy is open source. The code, methodology, ontology,
+        data-processing workflows, and technical documentation supporting the
+        Observatory are available in the public GitHub repository.
+      </p>
+      <p>
+        <a
+          href="https://github.com/zuduozheng/whitebox-autonomy"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View White Box Autonomy on GitHub &rarr;
+        </a>
+      </p>
+
       <p>
         See <Link href="/about">About</Link> for the project&rsquo;s purpose and
         scope.
