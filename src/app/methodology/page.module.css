@@ -10,14 +10,15 @@
 
 .statusList {
   margin: var(--space-4) 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+  display: grid;
+  grid-template-columns: minmax(11rem, max-content) 1fr;
+  gap: var(--space-3) 0;
 }
 
 .statusRow {
   display: grid;
-  grid-template-columns: minmax(11rem, max-content) 1fr;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
   gap: var(--space-2) var(--space-4);
   align-items: start;
   padding-bottom: var(--space-3);
@@ -50,7 +51,7 @@
 }
 
 @media (max-width: 34rem) {
-  .statusRow {
+  .statusList {
     grid-template-columns: 1fr;
   }
 }
