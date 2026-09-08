@@ -9,6 +9,7 @@
 }
 
 .statusList {
+  max-width: 44rem;
   margin: var(--space-4) 0;
   display: grid;
   grid-template-columns: minmax(11rem, max-content) 1fr;
