@@ -102,7 +102,7 @@ export default function AboutPage() {
       <p>
         To report an error, request a correction, or raise a concern about a
         record or its source material, contact{" "}
-        <a href="mailto:zuduo.zheng@uq.edu.au">zuduo.zheng@uq.edu.au</a>.
+        <a href="mailto:whiteboxautonomy@uq.edu.au">whiteboxautonomy@uq.edu.au</a>.
       </p>
     </main>
   );
