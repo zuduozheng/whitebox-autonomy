@@ -8,12 +8,20 @@
  * later behind the same signatures.
  */
 
+import { cache } from "react";
+
 import { canonicalDeveloperLabel, EXCLUDED_DEVELOPER_RAW_VALUES } from "./developer-operator.ts";
 import { parseSharedFilterParams, type RawSearchParams } from "./filter-params.ts";
 import { partialDateSortKey } from "./format.ts";
 // Active event source. Swap back to "./local-source" for an immediate rollback
-// to the in-repo seed; every function below is agnostic to which one is used.
-import { loadEvents } from "./supabase-source.ts";
+// to the in-repo seed; every function below is agnostic to which one is used
+// (local-source.ts implements the same four exports).
+import {
+  fetchDeveloperOrOperatorRawValues,
+  fetchEventBySlug,
+  fetchEventSlugs,
+  loadEvents,
+} from "./supabase-source.ts";
 import type { Event, EventSummary, EventType, Valence } from "./types";
 
 export interface EventListFilter {
@@ -93,10 +101,18 @@ function filterEvents(events: readonly Event[], filter: EventListFilter): Event[
     );
 }
 
-function deriveDeveloperOptions(events: readonly Event[]): string[] {
+/**
+ * Canonicalises/excludes/dedups/sorts a list of raw `developer_or_operator`
+ * values into the option list. Takes raw strings rather than `Event[]` so
+ * getEventsPageData() (which already has the full corpus loaded) and
+ * listDeveloperOrOperatorOptions() (which fetches only this one narrow
+ * column — see supabase-source.ts's fetchDeveloperOrOperatorRawValues())
+ * share the exact same canonicalisation logic without either one needing
+ * the other's shape of input.
+ */
+function deriveDeveloperOptions(rawValues: readonly string[]): string[] {
   const distinct = new Set(
-    events
-      .map((event) => event.developerOrOperator)
+    rawValues
       .filter((raw) => !EXCLUDED_DEVELOPER_RAW_VALUES.has(raw))
       .map(canonicalDeveloperLabel),
   );
@@ -148,7 +164,9 @@ function deriveObservatoryStats(events: readonly Event[]): ObservatoryStats {
  */
 export async function getEventsPageData(searchParams: RawSearchParams): Promise<EventsPageData> {
   const allEvents = await loadEvents();
-  const developerOptions = deriveDeveloperOptions(allEvents);
+  const developerOptions = deriveDeveloperOptions(
+    allEvents.map((event) => event.developerOrOperator),
+  );
   const filter = parseSharedFilterParams(searchParams, developerOptions);
   const matched = filterEvents(allEvents, filter).sort(byDateDescThenTitle);
   const matchedCount = matched.length;
@@ -167,14 +185,23 @@ export async function listEventSummaries(
   return filterEvents(events, filter).sort(byDateDescThenTitle).map(toSummary);
 }
 
-export async function getEventBySlug(slug: string): Promise<Event | null> {
-  const events = await loadEvents();
-  return events.find((event) => event.slug === slug) ?? null;
-}
+/**
+ * Fetches exactly one event by slug (server-side filtered — see
+ * supabase-source.ts's fetchEventBySlug()), instead of loading the full
+ * corpus and searching in memory. Wrapped in React `cache()` (same pattern
+ * as src/lib/auth/require-curator.ts) so /events/[slug]'s generateMetadata()
+ * and page body — which both call this for the same slug in one request —
+ * share a single fetch instead of two. `cache()` scopes strictly to one
+ * request/render; it never spans requests, never leaks between visitors, and
+ * carries no additional staleness beyond the route's existing
+ * `revalidate = 300` (unchanged).
+ */
+export const getEventBySlug = cache(
+  async (slug: string): Promise<Event | null> => fetchEventBySlug(slug),
+);
 
 export async function listEventSlugs(): Promise<string[]> {
-  const events = await loadEvents();
-  return events.map((event) => event.slug);
+  return fetchEventSlugs();
 }
 
 /**
@@ -194,8 +221,7 @@ export async function listEventSlugs(): Promise<string[]> {
  * all three and gets them from a single loadEvents() call.
  */
 export async function listDeveloperOrOperatorOptions(): Promise<string[]> {
-  const events = await loadEvents();
-  return deriveDeveloperOptions(events);
+  return deriveDeveloperOptions(await fetchDeveloperOrOperatorRawValues());
 }
 
 export async function getObservatoryStats(): Promise<ObservatoryStats> {

@@ -428,13 +428,35 @@ function toEvent(row: EventRow): Event {
 }
 
 /**
- * Load-time invariants — mirrors ./local-source.ts so both sources agree,
- * except the observed_facts check below, which ./local-source.ts's fixed,
- * hand-authored dataset has no need for: every event it describes is
+ * Per-event load-time invariants — mirrors ./local-source.ts so both sources
+ * agree, except the observed_facts check below, which ./local-source.ts's
+ * fixed, hand-authored dataset has no need for: every event it describes is
  * `curated` origin, so its own unconditional check already agrees with the
  * `origin === "curated"` case here in every case that ever actually occurs
  * there.
+ *
+ * Split out from assertInvariants() (which additionally checks for duplicate
+ * slugs ACROSS an array) so a single event fetched on its own — see
+ * fetchEventBySlug() below — gets the same per-event validation without
+ * needing a whole corpus to check "duplicate" against.
  */
+function assertEventInvariants(event: Event): void {
+  // A source-derived event may legitimately have no observed_facts — see
+  // 20260908000000_event_origin.sql and toEvent()'s own mapping above.
+  if (event.origin === "curated" && event.observedFacts.length === 0) {
+    throw new Error(`Event "${event.slug}" has no observedFacts`);
+  }
+  // unknowns is deliberately NOT checked here: an empty array is a
+  // legitimate value — a well-evidenced event can have nothing left
+  // unestablished. See 20260904000000_unknowns_optional_for_publication.sql.
+  if (event.sources.length === 0) {
+    throw new Error(`Event "${event.slug}" has no sources`);
+  }
+  if (!event.recordUpdated) {
+    throw new Error(`Event "${event.slug}" has no recordUpdated date`);
+  }
+}
+
 function assertInvariants(events: Event[]): void {
   const seen = new Set<string>();
   for (const event of events) {
@@ -442,21 +464,7 @@ function assertInvariants(events: Event[]): void {
       throw new Error(`Duplicate event slug: "${event.slug}"`);
     }
     seen.add(event.slug);
-
-    // A source-derived event may legitimately have no observed_facts — see
-    // 20260908000000_event_origin.sql and toEvent()'s own mapping above.
-    if (event.origin === "curated" && event.observedFacts.length === 0) {
-      throw new Error(`Event "${event.slug}" has no observedFacts`);
-    }
-    // unknowns is deliberately NOT checked here: an empty array is a
-    // legitimate value — a well-evidenced event can have nothing left
-    // unestablished. See 20260904000000_unknowns_optional_for_publication.sql.
-    if (event.sources.length === 0) {
-      throw new Error(`Event "${event.slug}" has no sources`);
-    }
-    if (!event.recordUpdated) {
-      throw new Error(`Event "${event.slug}" has no recordUpdated date`);
-    }
+    assertEventInvariants(event);
   }
 }
 
@@ -470,11 +478,17 @@ function assertInvariants(events: Event[]): void {
  */
 export const EVENT_PAGE_SIZE = 1000;
 
-/** One page of raw `event` rows, ordered by slug ascending, offset-based. */
-async function fetchEventPage(offset: number): Promise<EventRow[]> {
+/**
+ * One page of raw rows for an arbitrary `select` list, ordered by slug
+ * ascending, offset-based. Generic over the row shape so the same pagination
+ * mechanics serve both the full `EVENT_SELECT` (loadEvents()) and the
+ * narrower selects below (fetchEventSlugs(), fetchDeveloperOrOperatorRawValues())
+ * — the row shape differs, the traversal doesn't.
+ */
+async function fetchPage<T>(select: string, offset: number): Promise<T[]> {
   const { data, error } = await supabase
     .from("event")
-    .select(EVENT_SELECT)
+    .select(select)
     .order("slug", { ascending: true })
     .range(offset, offset + EVENT_PAGE_SIZE - 1);
 
@@ -486,39 +500,129 @@ async function fetchEventPage(offset: number): Promise<EventRow[]> {
   if (!data) {
     throw new Error("Supabase returned no data for the event query");
   }
-  return data as unknown as EventRow[];
+  return data as unknown as T[];
 }
 
 /**
- * Loads the COMPLETE public event corpus, paginating past PostgREST's
- * default row cap. `slug` is unique and NOT NULL (20260829235332's `slug
- * text not null unique`), so ordering by it ascending gives a stable total
- * order — consecutive, non-overlapping `.range()` windows over that order
- * can neither skip nor duplicate a row under a static table. A page
- * strictly shorter than EVENT_PAGE_SIZE is the only completion signal (never
- * an assumed total count): the same signal a single unpaginated call would
- * have used it to look complete before this fix existed.
+ * Pages through the COMPLETE public event corpus for one `select` list,
+ * past PostgREST's default row cap. `slug` is unique and NOT NULL
+ * (20260829235332's `slug text not null unique`), so ordering by it
+ * ascending gives a stable total order — consecutive, non-overlapping
+ * `.range()` windows over that order can neither skip nor duplicate a row
+ * under a static table. A page strictly shorter than EVENT_PAGE_SIZE is the
+ * only completion signal (never an assumed total count): the same signal a
+ * single unpaginated call would have used to look complete before this fix
+ * existed.
  *
  * A failure on any page — including a later one — rejects the whole call
- * without returning the earlier pages already fetched: `rows` only feeds
- * `toEvent`/`assertInvariants` after every page has succeeded, so a partial
- * corpus can never be silently observed by a caller. `assertInvariants`
- * (unchanged) already rejects a duplicate slug across the FULL combined
- * result, which is exactly the boundary this pagination could otherwise get
- * wrong (double-counting a row across two pages) — no extra cross-page
- * dedup check was added here because that one already covers it.
+ * without returning the earlier pages already fetched: `rows` is only
+ * returned once every page has succeeded, so a partial corpus can never be
+ * silently observed by a caller.
  */
-export async function loadEvents(): Promise<Event[]> {
-  const rows: EventRow[] = [];
+async function paginateAll<T>(select: string): Promise<T[]> {
+  const rows: T[] = [];
   let offset = 0;
   for (;;) {
-    const page = await fetchEventPage(offset);
+    const page = await fetchPage<T>(select, offset);
     rows.push(...page);
     if (page.length < EVENT_PAGE_SIZE) break;
     offset += EVENT_PAGE_SIZE;
   }
+  return rows;
+}
 
+/**
+ * Loads the COMPLETE public event corpus with every field and nested source
+ * — the expensive, ~4-8MB read this module exists to bound to exactly the
+ * cases that genuinely need every field of every event (today: the
+ * Observatory list's getEventsPageData()). Prefer fetchEventBySlug(),
+ * fetchEventSlugs(), or fetchDeveloperOrOperatorRawValues() below when only
+ * one event or one narrow column is actually needed — each avoids this full
+ * load and its nested `event_source` join entirely.
+ *
+ * `assertInvariants` rejects a duplicate slug across the FULL combined
+ * result, which is exactly the boundary paginateAll()'s windows could
+ * otherwise get wrong (double-counting a row across two pages) — no extra
+ * cross-page dedup check is needed beyond it.
+ */
+export async function loadEvents(): Promise<Event[]> {
+  const rows = await paginateAll<EventRow>(EVENT_SELECT);
   const events = rows.map(toEvent);
   assertInvariants(events);
   return events;
+}
+
+/**
+ * Loads exactly ONE public event by slug, filtered server-side (`eq`) rather
+ * than by loading the full corpus and searching in memory. Same field list
+ * and nested source join as loadEvents() — the event-detail page needs every
+ * field — but exactly one PostgREST round trip returning at most one row,
+ * instead of the full ~2,800-row, multi-request corpus load.
+ *
+ * RLS-scoped identically to loadEvents(): a slug belonging to a non-public
+ * row is invisible to this anon-key client and `.maybeSingle()` sees no row,
+ * so this returns null for it — the same "not found" outcome the old
+ * in-memory `.find()` over the (already RLS-filtered) full corpus gave.
+ * `slug` is unique (20260829235332), so more than one matching row would
+ * indicate a broken DB constraint; `.maybeSingle()` throws in that case
+ * rather than silently picking one, which is stricter than (and consistent
+ * with) the previous behaviour.
+ */
+export async function fetchEventBySlug(slug: string): Promise<Event | null> {
+  const { data, error } = await supabase
+    .from("event")
+    .select(EVENT_SELECT)
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(
+      `Failed to load event "${slug}" from Supabase (${error.code ?? "no code"}): ${error.message}`,
+    );
+  }
+  if (!data) return null;
+
+  const event = toEvent(data as unknown as EventRow);
+  assertEventInvariants(event);
+  return event;
+}
+
+interface SlugRow {
+  slug: string | null;
+}
+
+/**
+ * Every public event's slug, and nothing else — for the sitemap and
+ * generateStaticParams(), neither of which needs a single other field.
+ * Still paginates (the corpus exceeds PostgREST's 1,000-row cap), but each
+ * page is a `select=slug` request instead of the full `EVENT_SELECT` with
+ * its nested `event_source` join — the same ~2,800 rows at a small fraction
+ * of the bytes. Same slug-ascending order as loadEvents() (both order by
+ * `slug` for the same pagination reason), so callers see the same ordering
+ * as before this change.
+ */
+export async function fetchEventSlugs(): Promise<string[]> {
+  const rows = await paginateAll<SlugRow>("slug");
+  return rows.map((row, index) => req(row.slug, "slug", row.slug ?? `(row ${index})`));
+}
+
+interface DeveloperOperatorRow {
+  slug: string | null;
+  developer_or_operator: string | null;
+}
+
+/**
+ * Every public event's raw `developer_or_operator` value (one entry per
+ * event, NOT deduplicated — repository.ts's deriveDeveloperOptions() does
+ * the canonicalisation/exclusion/dedup/sort, exactly as it already did when
+ * fed the full corpus). `slug` is selected alongside it only to name the
+ * offending row in req()'s error message; it is otherwise unused, and adding
+ * it costs a few bytes against a query whose entire point is dropping the
+ * other ~21 fields and the nested source join.
+ */
+export async function fetchDeveloperOrOperatorRawValues(): Promise<string[]> {
+  const rows = await paginateAll<DeveloperOperatorRow>("slug, developer_or_operator");
+  return rows.map((row) =>
+    req(row.developer_or_operator, "developer_or_operator", row.slug ?? "(unknown)"),
+  );
 }

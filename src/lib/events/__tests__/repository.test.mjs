@@ -9,7 +9,13 @@ import assert from "node:assert/strict";
 process.env.NEXT_PUBLIC_SUPABASE_URL ??= "https://example.supabase.co";
 process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??= "test-publishable-key";
 
-const { getEventsPageData, OBSERVATORY_PAGE_SIZE } = await import("../repository.ts");
+const {
+  getEventsPageData,
+  getEventBySlug,
+  listEventSlugs,
+  listDeveloperOrOperatorOptions,
+  OBSERVATORY_PAGE_SIZE,
+} = await import("../repository.ts");
 
 const CANONICAL_URL =
   "https://www.nhtsa.gov/laws-regulations/standing-general-order-crash-reporting";
@@ -168,4 +174,114 @@ test("changing the filter naturally changes matchedCount/totalPages independent 
   assert.equal(collisionData.totalPages, 2);
   assert.equal(otherData.matchedCount, 3);
   assert.equal(otherData.totalPages, 1);
+});
+
+// --- PostgREST-egress fix: getEventBySlug / listEventSlugs /
+// listDeveloperOrOperatorOptions no longer go through loadEvents()'s
+// full-corpus pagination. Verified here through repository.ts's real public
+// API (the same functions events/[slug]/page.tsx, sitemap.ts, and
+// map/page.tsx actually call) against a mocked fetch that would reveal a
+// full-corpus request if one occurred. ---
+
+test("getEventBySlug makes exactly one narrow, slug-filtered PostgREST request — not the full-corpus pagination loop", async (t) => {
+  const original = globalThis.fetch;
+  t.after(() => {
+    globalThis.fetch = original;
+  });
+  let calls = 0;
+  let capturedUrl;
+  globalThis.fetch = async (url) => {
+    calls++;
+    capturedUrl = String(url);
+    return new Response(JSON.stringify([eventRow(0, { slug: "event-0000" })]), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  };
+
+  const event = await getEventBySlug("event-0000");
+
+  assert.equal(calls, 1);
+  assert.match(decodeURIComponent(capturedUrl), /slug=eq\.event-0000/);
+  assert.equal(event.slug, "event-0000");
+});
+
+test("getEventBySlug returns null for a slug with no matching public event", async (t) => {
+  withMockedFetch(t, []);
+  const event = await getEventBySlug("does-not-exist");
+  assert.equal(event, null);
+});
+
+test("getEventBySlug resolves independently for different slugs across separate calls (no stale cross-call leakage)", async (t) => {
+  const original = globalThis.fetch;
+  t.after(() => {
+    globalThis.fetch = original;
+  });
+  globalThis.fetch = async (url) => {
+    const match = decodeURIComponent(String(url)).match(/slug=eq\.([^&]+)/);
+    const requestedSlug = match?.[1];
+    const row = requestedSlug === "event-0001" ? eventRow(1, { slug: "event-0001" }) : null;
+    return new Response(JSON.stringify(row ? [row] : []), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  };
+
+  const first = await getEventBySlug("event-0001");
+  const second = await getEventBySlug("event-9999");
+
+  assert.equal(first.slug, "event-0001");
+  assert.equal(second, null);
+});
+
+test("listEventSlugs returns every slug via a narrow select, without requesting the full event payload", async (t) => {
+  const original = globalThis.fetch;
+  t.after(() => {
+    globalThis.fetch = original;
+  });
+  let capturedUrl;
+  globalThis.fetch = async (url) => {
+    capturedUrl = String(url);
+    return new Response(JSON.stringify([{ slug: "event-0000" }, { slug: "event-0001" }]), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  };
+
+  const slugs = await listEventSlugs();
+
+  assert.deepEqual(slugs, ["event-0000", "event-0001"]);
+  assert.match(decodeURIComponent(capturedUrl), /select=slug(&|$)/);
+  assert.doesNotMatch(decodeURIComponent(capturedUrl), /event_source/);
+});
+
+test("listDeveloperOrOperatorOptions still canonicalises/excludes/dedups/sorts raw values fetched narrowly", async (t) => {
+  const original = globalThis.fetch;
+  t.after(() => {
+    globalThis.fetch = original;
+  });
+  let capturedUrl;
+  globalThis.fetch = async (url) => {
+    capturedUrl = String(url);
+    return new Response(
+      JSON.stringify([
+        { slug: "e0", developer_or_operator: "Waymo" },
+        { slug: "e1", developer_or_operator: "Waymo LLC" },
+        { slug: "e2", developer_or_operator: "WAYMO LLC" },
+        { slug: "e3", developer_or_operator: "Tesla Inc" },
+        { slug: "e4", developer_or_operator: "Internal employee" },
+      ]),
+      { status: 200, headers: { "content-type": "application/json" } },
+    );
+  };
+
+  const options = await listDeveloperOrOperatorOptions();
+
+  // "Waymo"/"Waymo LLC"/"WAYMO LLC" collapse to one canonical "Waymo" option;
+  // "Tesla Inc" canonicalises to "Tesla"; "Internal employee" is excluded
+  // entirely — identical semantics to the old full-corpus deriveDeveloperOptions()
+  // path (see developer-operator.ts), just fed from a narrower query.
+  assert.deepEqual(options, ["Tesla", "Waymo"]);
+  assert.doesNotMatch(decodeURIComponent(capturedUrl), /event_source/);
+  assert.doesNotMatch(decodeURIComponent(capturedUrl), /summary/);
 });

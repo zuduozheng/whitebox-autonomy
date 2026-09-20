@@ -38,3 +38,26 @@ export async function loadEvents(): Promise<Event[]> {
   assertInvariants(seedEvents);
   return seedEvents;
 }
+
+/**
+ * Narrow counterparts of ./supabase-source.ts's fetchEventBySlug(),
+ * fetchEventSlugs(), and fetchDeveloperOrOperatorRawValues() — required so
+ * repository.ts stays agnostic to which source is active (see this file's
+ * header comment). The in-memory seed has no per-field query cost to save,
+ * so these simply derive the same narrow result from the same validated
+ * array loadEvents() already returns.
+ */
+export async function fetchEventBySlug(slug: string): Promise<Event | null> {
+  assertInvariants(seedEvents);
+  return seedEvents.find((event) => event.slug === slug) ?? null;
+}
+
+export async function fetchEventSlugs(): Promise<string[]> {
+  assertInvariants(seedEvents);
+  return seedEvents.map((event) => event.slug);
+}
+
+export async function fetchDeveloperOrOperatorRawValues(): Promise<string[]> {
+  assertInvariants(seedEvents);
+  return seedEvents.map((event) => event.developerOrOperator);
+}
