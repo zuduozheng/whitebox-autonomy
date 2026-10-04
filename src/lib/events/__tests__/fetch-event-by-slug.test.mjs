@@ -149,14 +149,12 @@ test("still rejects a source_type outside the controlled vocabulary for a singly
   );
 });
 
-test("still rejects observed_facts=[] for a curated event fetched singly (per-event invariant preserved)", async (t) => {
+test("accepts observed_facts=[] for a curated event fetched singly (design change 2026-10-04, observed facts optional)", async (t) => {
   withRestoredFetch(t);
   mockFetchReturning([eventRow({ origin: "curated", observed_facts: [] })]);
 
-  await assert.rejects(
-    () => fetchEventBySlug("target-event"),
-    /"observed_facts" must be a non-empty array/,
-  );
+  const event = await fetchEventBySlug("target-event");
+  assert.deepEqual(event.observedFacts, []);
 });
 
 test("still accepts a source-derived event with no observed_facts/summary/review_status, fetched singly", async (t) => {

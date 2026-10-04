@@ -189,14 +189,27 @@ test("loadEvents() still rejects an invalid non-null review_status, even for a s
   await assert.rejects(() => loadEvents(), /"review_status" has unexpected value/);
 });
 
-test("loadEvents() still rejects observed_facts=[] for a curated event", async (t) => {
+test("loadEvents() accepts observed_facts=[] for a curated event (design change 2026-10-04, observed facts optional) — the whole list still loads", async (t) => {
   const originalFetch = globalThis.fetch;
   t.after(() => {
     globalThis.fetch = originalFetch;
   });
   mockFetchReturning([eventRow({ sourceType: "other", origin: "curated", observed_facts: [] })]);
 
-  await assert.rejects(() => loadEvents(), /"observed_facts" must be a non-empty array/);
+  const events = await loadEvents();
+  assert.equal(events.length, 1);
+  assert.deepEqual(events[0].observedFacts, [], "never manufactured");
+});
+
+test("loadEvents() still rejects a blank observed fact entry, for every origin", async (t) => {
+  const originalFetch = globalThis.fetch;
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+  for (const origin of ["curated", "source-derived"]) {
+    mockFetchReturning([eventRow({ sourceType: "other", origin, observed_facts: ["A fact.", "  "] })]);
+    await assert.rejects(() => loadEvents(), /"observed_facts" contains an empty or non-string entry/, origin);
+  }
 });
 
 test("loadEvents() still rejects an origin value outside the controlled vocabulary", async (t) => {

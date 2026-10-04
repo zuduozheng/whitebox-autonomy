@@ -314,26 +314,13 @@ function toLocation(
   return countryCode === null ? { text, precision: p } : { text, countryCode, precision: p };
 }
 
-function toStringArray(value: string[] | null, field: string, slug: string): string[] {
-  if (!Array.isArray(value) || value.length === 0) {
-    throw new Error(`Event "${slug}": "${field}" must be a non-empty array`);
-  }
-  for (const item of value) {
-    if (typeof item !== "string" || item.trim() === "") {
-      throw new Error(`Event "${slug}": "${field}" contains an empty or non-string entry`);
-    }
-  }
-  return value;
-}
-
 /**
- * Like `toStringArray`, but an empty array is a legitimate value. Used for
- * `unknowns` on every event (a public event may genuinely have nothing left
- * unestablished), and for `observed_facts` on a `source-derived` event only
- * (its structured/classified fields and sources carry the evidence instead of
- * curator-written bullets — see 20260908000000_event_origin.sql). A `curated`
- * event's `observed_facts` still goes through `toStringArray` and stays
- * mandatory.
+ * A string array where an empty array is a legitimate value; any entry present
+ * must be a non-empty string. Used for `unknowns` and `observed_facts` on
+ * every event: a public event may genuinely have nothing left unestablished,
+ * and observed facts are optional for every origin (20260908000000_event_
+ * origin.sql for source-derived events; design change 2026-10-04 for curated
+ * ones).
  */
 function toOptionalStringArray(value: string[] | null, field: string, slug: string): string[] {
   if (!Array.isArray(value)) {
@@ -394,13 +381,12 @@ function toEvent(row: EventRow): Event {
     systemVersion: toSystemVersion(row.system_version, row.system_version_knowledge, slug),
     eventType: oneOf<EventType>(row.event_type, EVENT_TYPES, "event_type", slug),
     valence: oneOf<Valence>(row.valence, VALENCES, "valence", slug),
-    // A curated event's observed_facts stays mandatory (>=1); a source-derived
-    // event may legitimately publish with none — its structured/classified
-    // fields and sources carry the evidence instead. Never manufactured here.
-    observedFacts:
-      origin === "source-derived"
-        ? toOptionalStringArray(row.observed_facts, "observed_facts", slug)
-        : toStringArray(row.observed_facts, "observed_facts", slug),
+    // observed_facts may be empty for every origin (design change 2026-10-04,
+    // observed facts optional): a source-derived event's structured fields and
+    // sources carry its evidence, and a curated event's curator-written summary
+    // may already state what the evidence establishes. Never manufactured here;
+    // an entry that is present must still be a non-empty string.
+    observedFacts: toOptionalStringArray(row.observed_facts, "observed_facts", slug),
     unknowns: toOptionalStringArray(row.unknowns, "unknowns", slug),
     causation: toCausation(row.causation_status, row.causation_note, slug),
     // A curated event's review_status stays mandatory; a source-derived event
@@ -428,12 +414,10 @@ function toEvent(row: EventRow): Event {
 }
 
 /**
- * Per-event load-time invariants — mirrors ./local-source.ts so both sources
- * agree, except the observed_facts check below, which ./local-source.ts's
- * fixed, hand-authored dataset has no need for: every event it describes is
- * `curated` origin, so its own unconditional check already agrees with the
- * `origin === "curated"` case here in every case that ever actually occurs
- * there.
+ * Per-event load-time invariants — mirrors ./local-source.ts, except that no
+ * observed_facts count is required here: production events may legitimately
+ * have none (see below), while ./local-source.ts's fixed, hand-authored
+ * dataset always has some and keeps its own check.
  *
  * Split out from assertInvariants() (which additionally checks for duplicate
  * slugs ACROSS an array) so a single event fetched on its own — see
@@ -441,11 +425,9 @@ function toEvent(row: EventRow): Event {
  * needing a whole corpus to check "duplicate" against.
  */
 function assertEventInvariants(event: Event): void {
-  // A source-derived event may legitimately have no observed_facts — see
-  // 20260908000000_event_origin.sql and toEvent()'s own mapping above.
-  if (event.origin === "curated" && event.observedFacts.length === 0) {
-    throw new Error(`Event "${event.slug}" has no observedFacts`);
-  }
+  // observed_facts is deliberately NOT checked here: an empty array is a
+  // legitimate value for every origin (20260908000000_event_origin.sql for
+  // source-derived events; design change 2026-10-04 for curated ones).
   // unknowns is deliberately NOT checked here: an empty array is a
   // legitimate value — a well-evidenced event can have nothing left
   // unestablished. See 20260904000000_unknowns_optional_for_publication.sql.
